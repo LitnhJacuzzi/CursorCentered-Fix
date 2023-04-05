@@ -1,0 +1,26 @@
+modLoader="javafml"
+loaderVersion="[34,)"
+license="GPL 3.0"
+
+[[mods]]
+modId="cursorcenteredfix"
+version="1.0"
+displayName="CursorCentered Fix"
+authors="LitnhJacuzzi"
+description='''
+Explicitly center the cursor when open a gui.
+'''
+
+[[dependencies.cursorcenteredfix]]
+    modId="forge"
+    mandatory=true
+    versionRange="[34,)"
+    ordering="NONE"
+    side="CLIENT"
+    
+[[dependencies.cursorcenteredfix]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="[1.16.1,1.17)"
+    ordering="NONE"
+    side="CLIENT"
