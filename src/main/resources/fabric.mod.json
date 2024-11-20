@@ -1,0 +1,31 @@
+{
+	"schemaVersion": 1,
+	"id": "cursorcenteredfix",
+	"version": "1.1",
+	"name": "CursorCentered Fix",
+	"description": "Fix the cursor centering issue that occasionally happens when opening a GUI.",
+	"authors": [
+		"LitnhJacuzzi"
+	],
+	"contact": {
+		"sources": "https://github.com/LitnhJacuzzi/CursorCentered-Fix"
+	},
+	"license": "GPL 3.0",
+	"environment": "*",
+	"entrypoints": {
+		"client": [
+			"org.litnhjacuzzi.cursorcenteredfix.CursorCenteredFix"
+		]
+	},
+	"mixins": [
+		"cursorcenteredfix.mixins.json"
+	],
+	"depends": {
+		"fabricloader": "*",
+		"minecraft": ">=1.14",
+		"java": ">=8"
+	},
+	"suggests": {
+		"another-mod": "*"
+	}
+}
