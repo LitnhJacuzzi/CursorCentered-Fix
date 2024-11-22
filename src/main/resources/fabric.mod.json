@@ -1,7 +1,7 @@
 {
 	"schemaVersion": 1,
 	"id": "cursorcenteredfix",
-	"version": "1.2-alpha",
+	"version": "1.2-beta",
 	"name": "CursorCentered Fix",
 	"description": "Fix the cursor centering issue that occasionally happens when opening a GUI.",
 	"authors": [
