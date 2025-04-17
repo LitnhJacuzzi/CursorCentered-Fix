@@ -16,9 +16,10 @@ import net.minecraft.client.util.Window;
 public abstract class MouseMixin {
 	@Shadow
 	private MinecraftClient client;
-	
-	private final ProcessBuilder setCursorPosProcBuilder = new ProcessBuilder("sudo", "ydotool", "mousemove", "0", "0");
-	
+
+	private final ProcessBuilder setCursorPosProcBuilderAbsolute = new ProcessBuilder("sudo", "ydotool", "mousemove", "--absolute", "0", "0");
+	private final ProcessBuilder setCursorPosProcBuilderRelative = new ProcessBuilder("sudo", "ydotool", "mousemove", "0", "0");
+
 	@Inject(method = "unlockCursor()V", at = @At(value = "INVOKE", 
 			target = "Lnet/minecraft/client/util/InputUtil;setCursorParameters(JIDD)V"))
 	public void setMouseMode(CallbackInfo ci) {
@@ -33,11 +34,17 @@ public abstract class MouseMixin {
 			Window window = ((MinecraftClientMixin) client).getWindow();
 			String xArg = String.valueOf(window.getX() + window.getWidth() / 2);
 			String yArg = String.valueOf(window.getY() + window.getHeight() / 2);
-			setCursorPosProcBuilder.command().set(3, xArg);
-			setCursorPosProcBuilder.command().set(4, yArg);
+
 			try {
-				Process setCursorPosProc = setCursorPosProcBuilder.start();
-				setCursorPosProc.waitFor();
+				// first set cursor to 0 0 to circumvent ydotool bug
+				Process setCursorPosProcAbsolute = setCursorPosProcBuilderAbsolute.start();
+				setCursorPosProcAbsolute.waitFor();
+
+				// after having cursor at 0 0, go to the correct position
+				setCursorPosProcBuilderRelative.command().set(3, xArg);
+				setCursorPosProcBuilderRelative.command().set(4, yArg);
+				Process setCursorPosProcRelative = setCursorPosProcBuilderRelative.start();
+				setCursorPosProcRelative.waitFor();
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
