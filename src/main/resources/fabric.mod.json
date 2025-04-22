@@ -11,6 +11,7 @@
 		"sources": "https://github.com/LitnhJacuzzi/CursorCentered-Fix"
 	},
 	"license": "GPL 3.0",
+	"icon": "assets/cursorcenteredfix/icon.png",
 	"environment": "*",
 	"entrypoints": {
 		"client": [
