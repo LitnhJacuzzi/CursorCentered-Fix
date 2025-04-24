@@ -14,6 +14,7 @@ public class CursorCenteredFix implements ClientModInitializer {
 	public static final Logger LOGGER = LogManager.getLogger("cursorcenteredfix");
 	
 	public static final boolean IS_WAYLAND;
+	public static final boolean IS_KDE;
 	
 	/**wayland scaling factor*/
 	public static double cursorMoveScalingValue = 1.0;
@@ -35,9 +36,12 @@ public class CursorCenteredFix implements ClientModInitializer {
 	static {
 		if(!Platform.isLinux()) {
 			IS_WAYLAND = false;
+			IS_KDE = false;
 		}else {
 			String displayProt = System.getenv("XDG_SESSION_TYPE");
 			IS_WAYLAND = displayProt != null && displayProt.equals("wayland");
+			String desktop = System.getenv("XDG_CURRENT_DESKTOP");
+			IS_KDE = desktop != null && desktop.contains("KDE");
 		}
 	}
 }

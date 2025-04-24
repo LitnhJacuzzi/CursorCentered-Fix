@@ -1,5 +1,7 @@
 package org.litnhjacuzzi.cursorcenteredfix.mixin;
 
+import java.util.function.BiConsumer;
+
 import org.litnhjacuzzi.cursorcenteredfix.CursorCenteredFix;
 import org.lwjgl.glfw.GLFW;
 import org.spongepowered.asm.mixin.Mixin;
@@ -18,7 +20,9 @@ public abstract class MouseMixin {
 	@Shadow
 	private MinecraftClient client;
 	
-	private final ProcessBuilder setCursorPosProcBuilder = new ProcessBuilder("sudo", "ydotool", "mousemove", "-a", "0", "0");
+	private static final BiConsumer<Integer, Integer> setCursorPos;
+	
+	private static final ProcessBuilder setCursorPosProcBuilder;
 	
 	@Inject(method = "unlockCursor()V", at = @At(value = "INVOKE", 
 			target = "Lnet/minecraft/client/util/InputUtil;setCursorParameters(JIDD)V"))
@@ -32,17 +36,42 @@ public abstract class MouseMixin {
 	public void setCursorPos(CallbackInfo ci) {
 		if(CursorCenteredFix.IS_WAYLAND) {
 			Window window = ((MinecraftClientMixin) client).getWindow();
-			double moveScale = CursorCenteredFix.cursorMoveScalingValue;
-			String xArg = String.valueOf((int) ((window.getX() + window.getWidth() / 2) * moveScale));
-			String yArg = String.valueOf((int) ((window.getY() + window.getHeight() / 2) * moveScale));
-			setCursorPosProcBuilder.command().set(4, xArg);
-			setCursorPosProcBuilder.command().set(5, yArg);
-			try {
-				Process setCursorPosProc = setCursorPosProcBuilder.start();
-				setCursorPosProc.waitFor();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+			setCursorPos.accept(window.getX() + window.getWidth() / 2, window.getY() + window.getHeight() / 2);
+		}
+	}
+	
+	private static void setCursorPosAbs(int x, int y) {
+		double moveScale = CursorCenteredFix.cursorMoveScalingValue;
+		setCursorPosProcBuilder.command().set(4, String.valueOf((int) (x * moveScale)));
+		setCursorPosProcBuilder.command().set(5, String.valueOf((int) (y * moveScale)));
+		runSetCursorPosCommand();
+	}
+	
+	private static void setCursorPosRel(int x, int y) {
+		setCursorPosProcBuilder.command().set(4, String.valueOf(Integer.MIN_VALUE));
+		setCursorPosProcBuilder.command().set(6, String.valueOf(Integer.MIN_VALUE));
+		runSetCursorPosCommand();
+		double moveScale = CursorCenteredFix.cursorMoveScalingValue;
+		setCursorPosProcBuilder.command().set(4, String.valueOf((int) (x * moveScale)));
+		setCursorPosProcBuilder.command().set(6, String.valueOf((int) (y * moveScale)));
+		runSetCursorPosCommand();
+	}
+	
+	private static void runSetCursorPosCommand() {
+		try {
+			setCursorPosProcBuilder.start().waitFor();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	static {
+		if(CursorCenteredFix.IS_KDE) {
+			setCursorPosProcBuilder = new ProcessBuilder("sudo", "ydotool", "mousemove", "-x", "0", "-y", "0");
+			setCursorPos = (x, y) -> setCursorPosRel(x, y);
+		}else {
+			setCursorPosProcBuilder = new ProcessBuilder("sudo", "ydotool", "mousemove", "-a", "0", "0");
+			setCursorPos = (x, y) -> setCursorPosAbs(x, y);
 		}
 	}
 }
