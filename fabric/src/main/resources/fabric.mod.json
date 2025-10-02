@@ -1,0 +1,29 @@
+{
+	"schemaVersion": 1,
+	"id": "${mod_id}",
+	"version": "${mod_version}",
+	"name": "${mod_name}",
+	"description": "${description}",
+	"authors": [
+		"${author}"
+	],
+	"contact": {
+		"sources": "${sources_url}"
+	},
+	"license": "${license}",
+	"icon": "${mod_logo}",
+	"environment": "*",
+	"entrypoints": {
+		"client": [
+			"org.litnhjacuzzi.cursorcenteredfix.CursorCenteredFix"
+		]
+	},
+	"mixins": [
+		"cursorcenteredfix.mixins.json"
+	],
+	"depends": {
+		"fabricloader": "*",
+		"minecraft": ">=1.14.4",
+		"java": ">=8"
+	}
+}

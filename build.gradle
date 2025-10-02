@@ -1,0 +1,31 @@
+plugins {
+	id 'eclipse'
+	id 'java'
+}
+
+allprojects {
+	repositories {
+		mavenCentral()
+	}
+
+	def all_properties = [
+		minecraft_version	: minecraft_version,
+		mod_id				: mod_id,
+		mod_name			: mod_name,
+		mod_version			: mod_version,
+		mod_logo			: mod_logo,
+		description			: description,
+		sources_url			: sources_url,
+		issues_url			: issues_url,
+		license				: license,
+		author				: author
+	]
+	
+	tasks.withType(ProcessResources).configureEach {
+		inputs.properties all_properties
+
+		filesMatching(['fabric.mod.json', 'META-INF/neoforge.mods.toml', 'pack.mcmeta']) {
+			expand all_properties
+		}
+	}
+}
