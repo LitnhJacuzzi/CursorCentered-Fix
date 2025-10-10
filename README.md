@@ -20,7 +20,11 @@ sudo make install
 ```
 Running `ydotoold -V` to verify your installation.
 ## 2. Add your user to sudo exceptions
-The **only** way to successfully center the cursor using ydotool in Minecraft is running ydotool command with `sudo` privilege. Thus you need to **make your user be able to run sudo command without password**: edit /etc/sudoers, add a line `<yourusername> ALL=(ALL) NOPASSWD:ALL`.
+The **only** way to successfully center the cursor using ydotool in Minecraft is running ydotool command with `sudo` privilege. Thus you need to **make your user be able to run ydotool command with sudo without password**: edit /etc/sudoers, add two lines:
+```
+<yourusername> ALL=(ALL) NOPASSWD:<ydotoold_path> //default path: /usr/local/bin/ydotoold
+<yourusername> ALL=(ALL) NOPASSWD:<ydotool_path> //default path: /usr/local/bin/ydotool
+```
 ## 3. Specify a move scaling value (Optional)
 There is an internal problem of moving cursor on wayland programmatically - the actual moved position may be affected by some system values depending on your desktop environment. In other words, **the default centering position is guaranteed correct only with default mouse sensitivity and mouse acceleration disabled (also requires default UI scale in some desktop environments)**. Fortunately, the requested position and actual position seem to always satisfy a liner function relationship, so we can use a `double` factor to correct it.
 

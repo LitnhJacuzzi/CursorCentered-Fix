@@ -31,12 +31,12 @@ public abstract class MouseMixin {
 		CursorManager.applyUnlockedMouseMode(client.getWindow().getHandle());
 	}
 	
-	@Inject(method = "unlockCursor()V", at = @At(value = "INVOKE", target = old_injection_target), remap = false, require = 0)
+	@Inject(method = "unlockCursor()V", at = @At(value = "INVOKE", target = old_injection_target, shift = At.Shift.AFTER), remap = false, require = 0)
 	public void centerWaylandCursorLegacy(CallbackInfo ci) {
 		cursorcenteredfix$centerWaylandCursor();
 	}
 	
-	@Inject(method = "unlockCursor()V", at = @At(value = "INVOKE", target = injection_target), require = 0)
+	@Inject(method = "unlockCursor()V", at = @At(value = "INVOKE", target = injection_target, shift = At.Shift.AFTER), require = 0)
 	public void centerWaylandCursor(CallbackInfo ci) {
 		cursorcenteredfix$centerWaylandCursor();
 	}
