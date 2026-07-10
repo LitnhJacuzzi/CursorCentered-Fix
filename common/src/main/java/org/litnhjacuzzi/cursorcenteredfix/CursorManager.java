@@ -3,7 +3,9 @@ package org.litnhjacuzzi.cursorcenteredfix;
 import java.io.IOException;
 
 import org.apache.logging.log4j.Logger;
+import org.lwjgl.PointerBuffer;
 import org.lwjgl.glfw.GLFW;
+import org.lwjgl.glfw.GLFWVidMode;
 
 import com.sun.jna.Platform;
 
@@ -19,7 +21,7 @@ public class CursorManager {
 	private static final ProcessBuilder setCursorPosProcBuilder;
 	
 	public static void initialize(Logger logger) {
-		if(IS_WAYLAND) {
+		if (IS_WAYLAND) {
 			try {
 				new ProcessBuilder("sudo", "ydotoold").start();
 				cursorMoveScalingValue = Double.valueOf(System.getProperty("cursorMoveScalingValue"));
@@ -36,6 +38,22 @@ public class CursorManager {
 	}
 	
 	public static void centerWaylandCursor(int cursorX, int cursorY) {
+		PointerBuffer monitors = GLFW.glfwGetMonitors();
+		int[] monitorX = new int[1], monitorY = new int[1];
+		int monitorW, monitorH;
+		while (monitors.hasRemaining()) {
+			long monitor = monitors.get();
+			GLFW.glfwGetMonitorPos(monitor, monitorX, monitorY);
+			GLFWVidMode videoMode = GLFW.glfwGetVideoMode(monitor);
+			monitorW = videoMode.width();
+			monitorH = videoMode.height();
+			if (cursorX >= monitorX[0] && cursorY >= monitorY[0] &&
+					cursorX < (monitorX[0] + monitorW) && cursorY < (monitorY[0] + monitorH)) {
+				cursorX -= monitorX[0];
+				cursorY -= monitorY[0];
+				break;
+			}
+		}
 		cursorPosController.setCursorPos(cursorMoveScalingValue, cursorX, cursorY);
 	}
 	
@@ -59,28 +77,28 @@ public class CursorManager {
 	}
 	
 	static {
-		if(!Platform.isLinux()) {
+		if (!Platform.isLinux()) {
 			IS_WAYLAND = false;
 			IS_KDE = false;
-		}else {
+		} else {
 			String displayProt = System.getenv("XDG_SESSION_TYPE");
 			IS_WAYLAND = displayProt != null && displayProt.equals("wayland");
 			String desktop = System.getenv("XDG_CURRENT_DESKTOP");
 			IS_KDE = desktop != null && desktop.contains("KDE");
 		}
 		
-		if(IS_WAYLAND) {
+		if (IS_WAYLAND) {
 			xArgIndex = 4;
-			if(IS_KDE) {
+			if (IS_KDE) {
 				yArgIndex = 6;
 				setCursorPosProcBuilder = new ProcessBuilder("sudo", "ydotool", "mousemove", "-x", "0", "-y", "0");
 				cursorPosController = (s, x, y) -> setCursorPosRel(s, x, y);
-			}else {
+			} else {
 				yArgIndex = 5;
 				setCursorPosProcBuilder = new ProcessBuilder("sudo", "ydotool", "mousemove", "-a", "0", "0");
 				cursorPosController = (s, x, y) -> setCursorPosAbs(s, x, y);
 			}
-		}else {
+		} else {
 			xArgIndex = 0;
 			yArgIndex = 0;
 			setCursorPosProcBuilder = null;

@@ -3,8 +3,9 @@
 	"package": "org.litnhjacuzzi.cursorcenteredfix.mixin",
 	"compatibilityLevel": "JAVA_8",
 	"mixins": [
-		"MouseMixin",
-		"MinecraftClientAccessor"
+		"MouseHandlerMixin",
+		"MinecraftClientAccessor",
+		"WindowAccessor"
 	],
 	"injectors": {
 		"defaultRequire": 1

@@ -1,11 +1,12 @@
-plugins {
-	id 'eclipse'
-	id 'java'
-}
-
 allprojects {
+	apply plugin: 'eclipse'
+	apply plugin: 'java'
+
 	repositories {
 		mavenCentral()
+		maven {
+			url "https://repo.spongepowered.org/repository/maven-public/"
+		}
 	}
 
 	def all_properties = [
@@ -24,7 +25,7 @@ allprojects {
 	tasks.withType(ProcessResources).configureEach {
 		inputs.properties all_properties
 
-		filesMatching(['fabric.mod.json', 'META-INF/neoforge.mods.toml', 'pack.mcmeta']) {
+		filesMatching(['fabric.mod.json', 'META-INF/mods.toml', 'META-INF/neoforge.mods.toml', 'pack.mcmeta']) {
 			expand all_properties
 		}
 	}

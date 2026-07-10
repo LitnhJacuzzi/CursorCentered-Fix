@@ -1,0 +1,63 @@
+plugins {
+	id 'net.minecraftforge.gradle' version '[6.0,6.2)'
+	id 'org.spongepowered.mixin' version '0.7+'
+}
+
+java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+
+minecraft {
+	mappings channel: mapping_channel, version: mapping_version
+	copyIdeResources = true
+}
+
+sourceSets {
+	main {
+		java {
+			srcDir project(":common").file("src/main/java")
+		}
+	}
+}
+sourceSets.main.resources { srcDir 'src/generated/resources' }
+
+dependencies {
+	minecraft fg.deobf("net.minecraftforge:forge:${minecraft_version}-${forge_version}")
+	
+	annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
+	
+	implementation project(':common')
+}
+
+mixin {
+	disableTargetValidator = true
+	overwriteErrorLevel = 'warn'
+	add sourceSets.main, 'cursorcenteredfix.mixins.refmap.json'
+	config 'cursorcenteredfix.mixins.json'
+}
+
+java {
+	withSourcesJar()
+	
+	sourceCompatibility = JavaVersion.VERSION_17
+	targetCompatibility = JavaVersion.VERSION_17
+}
+
+project.jar {
+	archiveFileName = "${mod_id}-${mod_version}-forge+1.17-1.20.4.jar"
+	from (project(":common").sourceSets.main.output) {
+		exclude '**/*.class'
+		exclude '**/cursorcenteredfix.mixins.json'
+	}
+
+	manifest {
+		attributes([
+			"MixinConfigs": "cursorcenteredfix.mixins.json",
+			"Specification-Title"		: mod_id,
+			"Specification-Vendor"		: author,
+			"Specification-Version"		: "1",
+			"Implementation-Title"		: rootProject.name,
+			"Implementation-Version"	: mod_version,
+			"Implementation-Vendor"		: author,
+			"Implementation-Timestamp"	: new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
+		])
+	}
+}

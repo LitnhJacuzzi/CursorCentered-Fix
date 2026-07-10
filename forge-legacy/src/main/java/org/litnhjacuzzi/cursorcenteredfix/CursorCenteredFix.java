@@ -3,13 +3,14 @@ package org.litnhjacuzzi.cursorcenteredfix;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import net.fabricmc.api.ClientModInitializer;
+import net.minecraftforge.fml.common.Mod;
 
-public class CursorCenteredFix implements ClientModInitializer {
-	
+@Mod("cursorcenteredfix")
+public class CursorCenteredFix {
+
 	public static final Logger LOGGER = LogManager.getLogger("cursorcenteredfix");
-	
-	public void onInitializeClient() {
+
+	public CursorCenteredFix() {
 		CursorManager.initialize(LOGGER);
 	}
 }

@@ -1,0 +1,15 @@
+{
+	"required": true,
+	"minVersion": "0.8",
+	"package": "org.litnhjacuzzi.cursorcenteredfix.mixin",
+	"refmap": "cursorcenteredfix.mixins.refmap.json",
+	"compatibilityLevel": "JAVA_8",
+	"mixins": [
+		"MouseHandlerMixin",
+		"MinecraftClientAccessor",
+		"WindowAccessor"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	}
+}
