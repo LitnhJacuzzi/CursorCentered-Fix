@@ -3,7 +3,7 @@ plugins {
 }
 
 base {
-	archivesName = "${mod_id}-${mod_version}-fabric"
+	archivesName = "${mod_id}-${mod_version}-fabric+1.14.4-1.21.11"
 }
 
 repositories {

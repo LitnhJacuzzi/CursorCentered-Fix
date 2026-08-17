@@ -15,7 +15,7 @@ tasks.withType(JavaCompile).configureEach {
 }
 
 project.jar {
-    archiveFileName = "${mod_id}-${mod_version}-neoforge.jar"
+    archiveFileName = "${mod_id}-${mod_version}-neoforge-1.20.5+.jar"
     from sourceSets.main.output
     from project(":common").sourceSets.main.output
 }

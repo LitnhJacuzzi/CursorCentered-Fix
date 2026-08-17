@@ -1,0 +1,1 @@
+Wayland: support using wdotool as the backend, refer to mod description for details.

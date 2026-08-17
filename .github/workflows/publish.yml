@@ -1,0 +1,116 @@
+name: Publish
+
+on:
+  workflow_dispatch: {}
+
+env:
+  MOD_ID: cursorcenteredfix
+  MOD_VERSION: 1.4.0
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - project: forge-legacy
+            java-version: 17
+
+          - project: forge
+            java-version: 17
+        
+          - project: fabric
+            java-version: 17
+            
+          - project: neoforge
+            java-version: 21
+
+    steps:
+    - uses: actions/checkout@v7
+    - name: Set up JDK ${{ matrix.java-version }}
+      uses: actions/setup-java@v5.6.0
+      with:
+        distribution: 'temurin'
+        java-version: ${{ matrix.java-version }}
+    - name: Build ${{ matrix.project }}
+      run: ./gradlew :${{ matrix.project }}:build
+    - name: Upload Artifact - ${{ matrix.project }}
+      uses: actions/upload-artifact@v7
+      with:
+        # Artifact name
+        name: ${{ env.MOD_ID }}-${{ matrix.project }}
+        # Directory containing files to upload
+        path: ${{ matrix.project }}/build/libs/*.jar
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - id: forge-legacy
+            loader: forge
+            files: |
+              !(*-@(dev|sources|javadoc)).jar
+            game-versions: '1.16.5'
+            java-version: 17
+
+          - id: forge
+            loader: forge
+            files: |
+              !(*-@(dev|sources|javadoc)).jar
+            game-versions: '[1.17,1.20.4]'
+            java-version: 17
+
+          - id: fabric-remapped
+            loader: fabric
+            files: |
+              *1.14.4-1.21.11.jar
+            game-versions: '[1.14.4,1.21.11]'
+            java-version: 17
+
+          - id: fabric
+            loader: fabric
+            files: |
+              *26.1-26.2.jar
+            game-versions: '[26.1,26.2]'
+            java-version: 25
+
+          - id: neoforge
+            loader: neoforge
+            files: |
+              !(*-@(dev|sources|javadoc)).jar
+            game-versions: '[1.20.5,26.2]'
+            java-version: 21
+
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/download-artifact@v8
+        with:
+          name: ${{ env.MOD_ID }}-${{ matrix.loader }}
+          path: libs
+
+      - name: Publish ${{ matrix.id }}
+        uses: Kira-NT/mc-publish@v3.3
+        with:
+          modrinth-id: 3Vf97jLY
+          modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
+
+          curseforge-id: 846580
+          curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
+
+          name: ${{ env.MOD_ID }}-${{ env.MOD_VERSION }}-${{ matrix.id }}
+          version: ${{ env.MOD_VERSION }}
+          version-type: release
+          changelog-file: CHANGELOG.md
+
+          loaders: ${{ matrix.loader }}
+          game-versions: ${{ matrix.game-versions }}
+          java: ${{ matrix.java-version }}
+
+          files: libs/${{ matrix.files }}
+
+

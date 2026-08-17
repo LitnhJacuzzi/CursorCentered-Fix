@@ -1,6 +1,7 @@
 package org.litnhjacuzzi.cursorcenteredfix;
 
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.logging.log4j.Logger;
 import org.lwjgl.PointerBuffer;
@@ -19,6 +20,8 @@ public class CursorManager {
 	private static final CursorPosController cursorPosController;
 	private static final int xArgIndex, yArgIndex;
 	private static final ProcessBuilder setCursorPosProcBuilder;
+	
+	private static Process previousProcess;
 	
 	public static void initialize(Logger logger) {
 		if (IS_WAYLAND) {
@@ -70,7 +73,8 @@ public class CursorManager {
 		setCursorPosProcBuilder.command().set(xArgIndex, String.valueOf(x));
 		setCursorPosProcBuilder.command().set(yArgIndex, String.valueOf(y));
 		try {
-			setCursorPosProcBuilder.start().waitFor();
+			if(previousProcess != null && previousProcess.isAlive()) previousProcess.destroy();
+			(previousProcess = setCursorPosProcBuilder.start()).waitFor(500, TimeUnit.MICROSECONDS);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -88,15 +92,23 @@ public class CursorManager {
 		}
 		
 		if (IS_WAYLAND) {
-			xArgIndex = 4;
-			if (IS_KDE) {
-				yArgIndex = 6;
-				setCursorPosProcBuilder = new ProcessBuilder("sudo", "ydotool", "mousemove", "-x", "0", "-y", "0");
-				cursorPosController = (s, x, y) -> setCursorPosRel(s, x, y);
-			} else {
-				yArgIndex = 5;
-				setCursorPosProcBuilder = new ProcessBuilder("sudo", "ydotool", "mousemove", "-a", "0", "0");
+			String useWdotool = String.valueOf(System.getProperty("useWdotool"));
+			if (!useWdotool.equals("null")) {
+				xArgIndex = 2;
+				yArgIndex = 3;
+				setCursorPosProcBuilder = new ProcessBuilder("wdotool", "mousemove", "0", "0", "--backend", useWdotool);
 				cursorPosController = (s, x, y) -> setCursorPosAbs(s, x, y);
+			} else {
+				xArgIndex = 4;
+				if (IS_KDE) {
+					yArgIndex = 6;
+					setCursorPosProcBuilder = new ProcessBuilder("sudo", "ydotool", "mousemove", "-x", "0", "-y", "0");
+					cursorPosController = (s, x, y) -> setCursorPosRel(s, x, y);
+				} else {
+					yArgIndex = 5;
+					setCursorPosProcBuilder = new ProcessBuilder("sudo", "ydotool", "mousemove", "-a", "0", "0");
+					cursorPosController = (s, x, y) -> setCursorPosAbs(s, x, y);
+				} 
 			}
 		} else {
 			xArgIndex = 0;
